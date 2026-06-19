@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Providers from "@/components/Providers";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Hillwalking Rental | SCIE Gear Exchange",
@@ -44,16 +38,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} h-full scroll-smooth antialiased`}
-    >
+    <html lang="en" className="h-full scroll-smooth antialiased">
       <body className="flex min-h-full flex-col bg-cream text-foreground font-sans">
         <Providers>
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#1E3D1A",
+              color: "#FEFDF9",
+              border: "1px solid #2D5A27",
+              borderRadius: "0.5rem",
+              fontSize: "0.875rem",
+            },
+            success: {
+              iconTheme: { primary: "#F4A340", secondary: "#1E3D1A" },
+            },
+            error: {
+              iconTheme: { primary: "#DC2626", secondary: "#FEFDF9" },
+            },
+          }}
+        />
       </body>
     </html>
   );
