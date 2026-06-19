@@ -1,26 +1,186 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================
+   Hillwalking Rental Platform – Global Styles
+   Theme: Forest Green + Cream + Orange Accent
+   Tailwind CSS v4
+   ============================================ */
+
+/* --- Custom Theme Tokens --- */
+@theme {
+  /* Primary palette – forest greens */
+  --color-primary: #2D5A27;
+  --color-primary-light: #3E7A36;
+  --color-primary-lighter: #4F9A45;
+  --color-primary-dark: #1E3D1A;
+  --color-primary-darker: #142912;
+  --color-primary-50: #F0F7EF;
+  --color-primary-100: #D9ECD6;
+  --color-primary-200: #B3D9AC;
+  --color-primary-300: #8CC682;
+  --color-primary-400: #66B358;
+  --color-primary-500: #4F9A45;
+  --color-primary-600: #3E7A36;
+  --color-primary-700: #2D5A27;
+  --color-primary-800: #1E3D1A;
+  --color-primary-900: #142912;
+
+  /* Accent palette – warm oranges */
+  --color-accent: #F4A340;
+  --color-accent-light: #FFE4C4;
+  --color-accent-lighter: #FFF2E2;
+  --color-accent-dark: #D98A2E;
+  --color-accent-darker: #B8701F;
+  --color-accent-50: #FFF9F2;
+  --color-accent-100: #FFEED9;
+  --color-accent-200: #FFDDB3;
+  --color-accent-300: #FFCD8C;
+  --color-accent-400: #F7B866;
+  --color-accent-500: #F4A340;
+  --color-accent-600: #D98A2E;
+  --color-accent-700: #B8701F;
+  --color-accent-800: #935915;
+  --color-accent-900: #6E420D;
+
+  /* Surface palette – creams and warm neutrals */
+  --color-cream: #FEFDF9;
+  --color-cream-dark: #F8F6ED;
+  --color-surface: #F5F3EE;
+  --color-surface-dark: #EBE7DE;
+  --color-surface-darker: #D9D4C7;
+
+  /* Muted / text colors */
+  --color-muted: #6B7280;
+  --color-muted-light: #9CA3AF;
+  --color-muted-dark: #4B5563;
+  --color-foreground: #1A1A1A;
+  --color-background: #FEFDF9;
+
+  /* Semantic colors */
+  --color-success: #2D5A27;
+  --color-success-light: #F0F7EF;
+  --color-warning: #F4A340;
+  --color-warning-light: #FFF2E2;
+  --color-error: #DC2626;
+  --color-error-light: #FEF2F2;
+  --color-info: #3B82F6;
+  --color-info-light: #EFF6FF;
+
+  /* Border & ring */
+  --color-border: #D9D4C7;
+  --color-border-light: #EBE7DE;
+  --color-border-dark: #B8B0A0;
+  --color-ring: #2D5A27;
+
+  /* Shadows as colors */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* --- Base Layer --- */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-foreground);
+  min-height: 100vh;
+}
+
+/* --- Selection --- */
+::selection {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* --- Focus ring --- */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* --- Custom Scrollbar --- */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-darker) transparent;
+}
+
+/* WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-surface-darker);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-dark);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* --- Utility Classes --- */
+/* Subtle gradient backgrounds */
+.bg-cream-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-cream) 0%,
+    var(--color-surface) 50%,
+    var(--color-surface-dark) 100%
+  );
+}
+
+.bg-primary-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-dark) 0%,
+    var(--color-primary) 50%,
+    var(--color-primary-light) 100%
+  );
+}
+
+/* Card pattern */
+.bg-card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-light);
+  border-radius: 0.75rem;
+}
+
+.bg-card-hover:hover {
+  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+}
+
+/* Hero overlay gradient */
+.hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgb(30 61 26 / 0.7) 0%,
+    rgb(30 61 26 / 0.4) 50%,
+    rgb(30 61 26 / 0.8) 100%
+  );
 }

@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String
+  email             String    @unique
+  passwordHash      String
+  avatar            String?
+  grade             String    // G1, G2, A1, A2, Teacher, Staff
+  house             String    // Fire, Water, Wood, Metal, None
+  role              String    @default("USER") // USER, ADMIN
+  verified          Boolean   @default(false)
+  rating            Float     @default(0)
+  creditScore       Int       @default(100)
+  completedOrders   Int       @default(0)
+  bio               String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  items                     Item[]              @relation("itemOwner")
+  rentalRequestsAsBorrower  Order[]              @relation("borrower")
+  rentalRequestsAsLender    Order[]              @relation("lender")
+  sentMessages              Message[]
+  reviewsGiven              Review[]            @relation("reviewer")
+  reviewsReceived           Review[]            @relation("reviewee")
+  favorites                 Favorite[]
+  reports                   Report[]            @relation("reporter")
+  reportedAsTarget          Report[]            @relation("reportedUser")
+  announcements             Announcement[]
+  checklistEntries          UserGearChecklist[]
+  messageThreadsAsBorrower  MessageThread[]     @relation("borrower")
+  messageThreadsAsLender    MessageThread[]     @relation("lender")
+  adminNotes                AdminNote[]
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  icon        String?
+  description String?
+  items       Item[]
+}
+
+model Item {
+  id                       String    @id @default(cuid())
+  title                    String
+  description              String
+  categoryId               String
+  ownerId                  String
+  brand                    String?
+  size                     String?
+  condition                String    @default("GOOD")
+  dailyPrice               Float     @default(0)
+  deposit                  Float     @default(0)
+  pickupLocation           String    @default("SCIE_ANTUOSHAN")
+  returnLocation           String?
+  availableFrom            DateTime
+  availableTo              DateTime
+  status                   String    @default("PENDING_REVIEW")
+  isHillwalkingRecommended Boolean   @default(false)
+  safetyNotes              String?
+  tags                     String    @default("[]")
+  images                   String    @default("[]")
+  viewCount                Int       @default(0)
+  favoriteCount            Int       @default(0)
+  adminNote                String?
+  hiddenReason             String?
+  matchScore               Int       @default(0)
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  category   Category       @relation(fields: [categoryId], references: [id])
+  owner      User           @relation("itemOwner", fields: [ownerId], references: [id])
+  orders     Order[]
+  messages   MessageThread[]
+  favorites  Favorite[]
+  reports    Report[]
+  adminNotes AdminNote[]
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  itemId        String
+  borrowerId    String
+  lenderId      String
+  startDate     DateTime
+  endDate       DateTime
+  totalPrice    Float     @default(0)
+  deposit       Float     @default(0)
+  pickupTime    DateTime?
+  returnTime    DateTime?
+  borrowerNote  String?
+  lenderNote    String?
+  status        String    @default("REQUEST_PENDING")
+  pickupPhoto   String?
+  returnPhoto   String?
+  damageReport  String?
+  adminNote     String?
+  statusHistory String    @default("[]")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  item     Item     @relation(fields: [itemId], references: [id])
+  borrower User     @relation("borrower", fields: [borrowerId], references: [id])
+  lender   User     @relation("lender", fields: [lenderId], references: [id])
+  reviews  Review[]
+}
+
+model MessageThread {
+  id            String    @id @default(cuid())
+  itemId        String
+  borrowerId    String
+  lenderId      String
+  lastMessageAt DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  item     Item      @relation(fields: [itemId], references: [id])
+  borrower User      @relation("borrower", fields: [borrowerId], references: [id])
+  lender   User      @relation("lender", fields: [lenderId], references: [id])
+  messages Message[]
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  threadId  String
+  senderId  String
+  content   String
+  type      String    @default("TEXT")
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  thread    MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender    User          @relation(fields: [senderId], references: [id])
+}
+
+model Review {
+  id            String    @id @default(cuid())
+  orderId       String
+  reviewerId    String
+  revieweeId    String
+  rating        Int
+  content       String?
+  punctuality   Int       @default(3)
+  itemAccuracy  Int       @default(3)
+  communication Int       @default(3)
+  recommended   Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  order    Order @relation(fields: [orderId], references: [id])
+  reviewer User  @relation("reviewer", fields: [reviewerId], references: [id])
+  reviewee User  @relation("reviewee", fields: [revieweeId], references: [id])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  itemId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  item Item @relation(fields: [itemId], references: [id])
+
+  @@unique([userId, itemId])
+}
+
+model Report {
+  id           String    @id @default(cuid())
+  reporterId   String
+  itemId       String?
+  targetUserId String?
+  reason       String
+  description  String?
+  status       String    @default("PENDING")
+  adminNote    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  reporter   User  @relation("reporter", fields: [reporterId], references: [id])
+  item       Item? @relation(fields: [itemId], references: [id])
+  targetUser User? @relation("reportedUser", fields: [targetUserId], references: [id])
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  type        String   @default("GENERAL")
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User @relation(fields: [createdById], references: [id])
+}
+
+model GearChecklistItem {
+  id                    String  @id @default(cuid())
+  name                  String
+  category              String
+  importance            Int     @default(1)
+  description           String?
+  recommendedForWeather String?
+  icon                  String?
+}
+
+model UserGearChecklist {
+  id                 String   @id @default(cuid())
+  userId             String
+  gearItemId         String
+  status             String   @default("NEED")
+  linkedRentalOrderId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model HillwalkingEvent {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  eventDate   DateTime
+  createdById String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AdminNote {
+  id          String   @id @default(cuid())
+  itemId      String?
+  userId      String?
+  content     String
+  createdById String
+  createdAt   DateTime @default(now())
+
+  item Item? @relation(fields: [itemId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+}
+
+/// Raw session storage for cookie-based auth
+model Session {
+  id        String   @id
+  value     String
+  expiresAt DateTime
+
+  @@map("_Session")
+}
