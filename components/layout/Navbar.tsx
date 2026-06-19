@@ -56,7 +56,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/marketplace", label: "Marketplace" },
     { href: "/hillwalking", label: "Hillwalking Checklist" },
-    { href: "/rent-before-event", label: "Rent Before Event" },
+    { href: "/hillwalking/rent-before-event", label: "Rent Before Event" },
     { href: "/messages", label: "Messages", icon: MessageSquare },
   ];
 

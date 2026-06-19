@@ -80,7 +80,7 @@ export default async function ForbiddenPage() {
                   Go Home
                 </Button>
               </Link>
-              <Link href="/api/auth/signin">
+              <Link href="/login">
                 <Button variant="primary" size="lg" className="w-full sm:w-auto">
                   Login / Register
                 </Button>
