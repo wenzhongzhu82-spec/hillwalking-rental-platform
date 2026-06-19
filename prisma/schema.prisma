@@ -10,16 +10,23 @@ model User {
   id                String    @id @default(cuid())
   name              String
   email             String    @unique
+  emailVerified     DateTime?
   passwordHash      String
   avatar            String?
-  grade             String    // G1, G2, A1, A2, Teacher, Staff
+  grade             String?   // G1, G2, A1, A2, Teacher, Staff — nullable for non-students
   house             String    // Fire, Water, Wood, Metal, None
   role              String    @default("USER") // USER, ADMIN
   verified          Boolean   @default(false)
+  suspended         Boolean   @default(false)
+  suspendedReason   String?
   rating            Float     @default(0)
   creditScore       Int       @default(100)
   completedOrders   Int       @default(0)
   bio               String?
+  phone             String?
+  city              String?
+  country           String?
+  communityId       String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -37,6 +44,22 @@ model User {
   messageThreadsAsBorrower  MessageThread[]     @relation("borrower")
   messageThreadsAsLender    MessageThread[]     @relation("lender")
   adminNotes                AdminNote[]
+  community                 Community?        @relation(fields: [communityId], references: [id])
+}
+
+model Community {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  type        String   @default("OTHER") // SCHOOL, CLUB, CITY, ORGANIZATION, OTHER
+  description String?
+  location    String?
+  verified    Boolean  @default(false)
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members User[]
 }
 
 model Category {
@@ -252,4 +275,27 @@ model Session {
   expiresAt DateTime
 
   @@map("_Session")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model EmailSettings {
+  id        String @id @default(cuid())
+  host      String
+  port      Int
+  user      String
+  password  String
+  fromEmail String
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
 }

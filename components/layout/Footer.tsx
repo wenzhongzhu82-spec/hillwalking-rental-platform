@@ -13,12 +13,12 @@ export default function Footer() {
               <span className="text-lg font-bold text-white">Hillwalking Rental</span>
             </div>
             <p className="text-sm text-white/70 leading-relaxed max-w-sm">
-              The official SCIE hillwalking gear rental platform. Borrow and lend
-              hiking boots, backpacks, tents, sleeping bags, and more — by
-              students, for students.
+              A peer-to-peer hillwalking and outdoor gear rental platform. Borrow and lend
+              hiking boots, backpacks, tents, sleeping bags, and more — by the community,
+              for the community.
             </p>
             <p className="text-xs text-white/50 mt-4">
-              &copy; 2025 SCIE Hillwalking Gear Rental. For SCIE students only.
+              &copy; {new Date().getFullYear()} Hillwalking Rental Platform &mdash; Peer-to-peer outdoor gear rental.
             </p>
           </div>
 
@@ -41,16 +41,22 @@ export default function Footer() {
                 Rules
               </Link>
               <Link
-                href="/contact"
+                href="/terms"
                 className="text-sm text-white/70 hover:text-white transition-colors py-1"
               >
-                Contact
+                Terms
               </Link>
               <Link
                 href="/privacy"
                 className="text-sm text-white/70 hover:text-white transition-colors py-1"
               >
                 Privacy
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm text-white/70 hover:text-white transition-colors py-1"
+              >
+                Contact
               </Link>
               <Link
                 href="/marketplace"

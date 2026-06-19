@@ -51,9 +51,9 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Mountain className="w-12 h-12 text-primary mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-foreground">Join SCIE Hillwalking</h1>
+          <h1 className="text-2xl font-bold text-foreground">Join the Community</h1>
           <p className="text-sm text-muted mt-1">
-            Create your account to start renting gear
+            Anyone can register with any email — create your account to start renting gear
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export default function RegisterPage() {
             <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@scie.test" required className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-surface-dark bg-surface text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-surface-dark bg-surface text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
             </div>
           </div>
 

@@ -52,15 +52,15 @@ export default function HomePage() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-sm mb-6">
               <Mountain className="w-4 h-4" />
-              SCIE Student Platform
+              Peer-to-Peer Platform
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
               Rent Hillwalking Gear
               <br />
-              <span className="text-accent">from SCIE Students</span>
+              <span className="text-accent">from People Near You</span>
             </h1>
             <p className="text-lg text-white/80 mb-8 max-w-lg">
-              Borrow hiking gear for your next adventure. Affordable, sustainable, and trusted — by students, for students.
+              Borrow hiking gear for your next adventure. Affordable, sustainable, and trusted — join a community or use it anywhere.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -141,8 +141,8 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Shield, title: "SCIE Verified Users", desc: "School email required to register" },
-              { icon: MapPin, title: "In-Campus Pickup", desc: "Meet in public campus areas" },
+              { icon: Shield, title: "Verified Users", desc: "Community trust through reviews" },
+              { icon: MapPin, title: "Local Pickup", desc: "Meet in public community areas" },
               { icon: Star, title: "Ratings & Reviews", desc: "Build trust through transparent reviews" },
               { icon: Clock, title: "Admin Moderation", desc: "Items reviewed before listing" },
             ].map((t, i) => (
@@ -162,7 +162,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl font-bold text-foreground">Latest Gear</h2>
-              <p className="text-sm text-muted mt-1">Recently posted by SCIE students</p>
+              <p className="text-sm text-muted mt-1">Recently posted by community members</p>
             </div>
             <Link
               href="/marketplace"
@@ -186,7 +186,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-2xl font-bold text-foreground">🆓 Free to Borrow</h2>
-                <p className="text-sm text-muted mt-1">Generous students sharing gear at no cost</p>
+                <p className="text-sm text-muted mt-1">Generous members sharing gear at no cost</p>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -207,7 +207,7 @@ export default function HomePage() {
               <div>
                 <h3 className="font-semibold">Safety First</h3>
                 <p className="text-sm text-white/70">
-                  Exchange in campus public areas. Take photos. Report issues. This platform does not process real payments.
+                  Exchange in public areas. Take photos. Report issues. This platform does not process real payments.
                 </p>
               </div>
             </div>

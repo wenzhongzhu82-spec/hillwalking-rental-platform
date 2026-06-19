@@ -1,8 +1,6 @@
-export const SCHOOL_EMAIL_DOMAINS = [
-  "@scie.com.cn",
-  "@stu.scie.com.cn",
-  "@scie.test", // dev/testing
-] as const;
+// No email domain restrictions — anyone can register with any valid email.
+// Kept as empty array for backwards compatibility with any code referencing it.
+export const SCHOOL_EMAIL_DOMAINS: readonly string[] = [];
 
 export const GRADES = ["G1", "G2", "A1", "A2", "Teacher", "Staff"] as const;
 export const HOUSES = ["Fire", "Water", "Wood", "Metal", "None"] as const;
@@ -40,11 +38,13 @@ export const ORDER_STATUSES = [
 ] as const;
 
 export const PICKUP_LOCATIONS = [
-  "SCIE Antuoshan Campus",
-  "Dormitory Area",
-  "Library Entrance",
-  "Sports Field",
+  "Campus / School",
+  "Library",
+  "Sports Facility",
   "Cafeteria",
+  "Public Space",
+  "Dormitory Area",
+  "SCIE Antuoshan Campus",
   "Other",
 ] as const;
 
@@ -100,37 +100,39 @@ export const ROLES = {
 } as const;
 
 export const CONDITION_LABELS: Record<string, string> = {
-  NEW: "全新",
-  LIKE_NEW: "几乎全新",
-  LIGHTLY_USED: "轻微使用痕迹",
-  VISIBLY_USED: "明显使用痕迹",
-  FUNCTIONAL: "功能正常但外观旧",
+  NEW: "New / 全新",
+  LIKE_NEW: "Like New / 几乎全新",
+  LIGHTLY_USED: "Lightly Used / 轻微使用痕迹",
+  VISIBLY_USED: "Visibly Used / 明显使用痕迹",
+  FUNCTIONAL: "Functional / 功能正常但外观旧",
 };
 
 export const STATUS_LABELS: Record<string, string> = {
-  PENDING_REVIEW: "待审核",
-  AVAILABLE: "可租",
-  RESERVED: "已预约",
-  RENTED: "已租出",
-  RETURNED: "已归还",
-  HIDDEN: "已隐藏",
-  BANNED: "已下架",
+  PENDING_REVIEW: "Pending Review / 待审核",
+  AVAILABLE: "Available / 可租",
+  RESERVED: "Reserved / 已预约",
+  RENTED: "Rented / 已租出",
+  RETURNED: "Returned / 已归还",
+  HIDDEN: "Hidden / 已隐藏",
+  BANNED: "Banned / 已下架",
 };
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
-  REQUEST_PENDING: "等待确认",
-  ACCEPTED: "已接受",
-  REJECTED: "已拒绝",
-  CANCELLED: "已取消",
-  WAITING_PICKUP: "等待取货",
-  PICKED_UP: "已取货",
-  IN_USE: "使用中",
-  RETURN_REQUESTED: "请求归还",
-  RETURNED: "已归还",
-  COMPLETED: "已完成",
-  DISPUTE_OPENED: "争议中",
+  REQUEST_PENDING: "Request Pending / 等待确认",
+  ACCEPTED: "Accepted / 已接受",
+  REJECTED: "Rejected / 已拒绝",
+  CANCELLED: "Cancelled / 已取消",
+  WAITING_PICKUP: "Waiting Pickup / 等待取货",
+  PICKED_UP: "Picked Up / 已取货",
+  IN_USE: "In Use / 使用中",
+  RETURN_REQUESTED: "Return Requested / 请求归还",
+  RETURNED: "Returned / 已归还",
+  COMPLETED: "Completed / 已完成",
+  DISPUTE_OPENED: "Dispute Opened / 争议中",
 };
 
+// Grade and House are optional community-specific fields.
+// Kept for backwards compatibility with SCIE users.
 export const GRADE_LABELS: Record<string, string> = {
   G1: "G1",
   G2: "G2",
@@ -149,12 +151,12 @@ export const HOUSE_LABELS: Record<string, string> = {
 };
 
 export const REPORT_REASON_LABELS: Record<string, string> = {
-  FAKE_ITEM: "虚假物品",
-  UNREASONABLE_PRICE: "价格不合理",
-  DANGEROUS: "危险物品",
-  NOT_SUITABLE: "不适合校内交易",
-  FAKE_IMAGE: "图片不真实",
-  OTHER: "其他",
+  FAKE_ITEM: "Fake Item / 虚假物品",
+  UNREASONABLE_PRICE: "Unreasonable Price / 价格不合理",
+  DANGEROUS: "Dangerous Item / 危险物品",
+  NOT_SUITABLE: "Not Suitable / 不适合校内交易",
+  FAKE_IMAGE: "Fake Image / 图片不真实",
+  OTHER: "Other / 其他",
 };
 
 export const BANNED_KEYWORDS = [

@@ -6,26 +6,25 @@ import Providers from "@/components/Providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hillwalking Rental | SCIE Gear Exchange",
+  title: "Hillwalking Rental | Peer-to-Peer Outdoor Gear",
   description:
-    "The official SCIE hillwalking gear rental platform. Borrow and lend hiking boots, backpacks, tents, sleeping bags, and more — by students, for students. Affordable, sustainable, and adventure-ready.",
+    "Rent hillwalking and outdoor gear from people in your community. Peer-to-peer gear rental platform.",
   keywords: [
     "hillwalking",
     "gear rental",
-    "SCIE",
     "hiking equipment",
     "outdoor gear",
-    "student rental",
+    "peer-to-peer rental",
     "camping",
-    "Shenzhen",
+    "community rental",
   ],
-  authors: [{ name: "SCIE Hillwalking Club" }],
+  authors: [{ name: "Hillwalking Rental Platform" }],
   openGraph: {
-    title: "Hillwalking Rental | SCIE Gear Exchange",
+    title: "Hillwalking Rental | Peer-to-Peer Outdoor Gear",
     description:
-      "Borrow and lend hillwalking gear within the SCIE community. Affordable outdoor adventures start here.",
+      "Rent hillwalking and outdoor gear from people in your community. Affordable outdoor adventures start here.",
     type: "website",
-    siteName: "SCIE Hillwalking Rental",
+    siteName: "Hillwalking Rental",
   },
   icons: {
     icon: "/favicon.ico",

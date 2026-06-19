@@ -10,8 +10,8 @@ export type SessionUser = {
   role: string;
   verified: boolean;
   avatar: string | null;
-  grade: string;
-  house: string;
+  grade: string | null;
+  house: string | null;
   rating: number;
   creditScore: number;
 };

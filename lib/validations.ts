@@ -1,5 +1,4 @@
 import { z } from "zod/v4";
-import { SCHOOL_EMAIL_DOMAINS } from "./constants";
 
 export const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -11,23 +10,11 @@ export const registerSchema = z
     name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name too long"),
     email: z
       .string()
-      .email("Please enter a valid email")
-      .refine(
-        (email) => {
-          // In dev, accept any valid email
-          if (process.env.NODE_ENV === "development") return true;
-          return SCHOOL_EMAIL_DOMAINS.some((domain) =>
-            email.endsWith(domain)
-          );
-        },
-        {
-          message: `Email must be a school email (${SCHOOL_EMAIL_DOMAINS.join(", ")})`,
-        }
-      ),
+      .email("Please enter a valid email"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
-    grade: z.enum(["G1", "G2", "A1", "A2", "Teacher", "Staff"]),
-    house: z.enum(["Fire", "Water", "Wood", "Metal", "None"]),
+    grade: z.enum(["G1", "G2", "A1", "A2", "Teacher", "Staff"]).optional().or(z.literal("")),
+    house: z.enum(["Fire", "Water", "Wood", "Metal", "None"]).optional().or(z.literal("")),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

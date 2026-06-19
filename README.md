@@ -1,183 +1,283 @@
-# 🏔️ SCIE Hillwalking Gear Rental & Exchange
+# 🏔️ Hillwalking Rental Platform
 
-The official gear rental platform for Shenzhen College of International Education (SCIE) students. Borrow and lend hillwalking equipment within the trusted school community — backpacks, waterproof gear, trekking poles, camping equipment, and more.
+**Peer-to-peer outdoor gear rental platform.** Rent hillwalking and outdoor equipment from people in your community — backpacks, waterproof gear, trekking poles, camping equipment, and more.
 
-## Features
+Originally designed for SCIE (Shenzhen College of International Education) students, now extendable to any community, school, or organization.
 
-- **Marketplace** — Browse, search, and filter gear by category, price, and availability
-- **Item Listings** — Post your gear with descriptions, photos, pricing, and safety notes
-- **Rental Orders** — Request, accept, manage, and complete rentals with full status tracking
-- **Messaging** — Chat directly with lenders and borrowers in-thread
+## ✨ Features
+
+- **Public Registration** — Sign up with email or Google account. Anyone can join.
+- **Community System** — Join communities (schools, clubs, cities). Browse gear within or across communities.
+- **Marketplace** — Browse, search, and filter gear by category, price, availability, and community
+- **Item Listings** — Post gear with descriptions, photos, pricing, safety notes, and availability dates
+- **Rental Orders** — Full lifecycle: request → accept → pickup → use → return → review
+- **Messaging** — In-app chat between borrowers and lenders per item
 - **Favorites** — Save items for later
-- **Reviews & Ratings** — Rate your rental experience and build trust
-- **Hillwalking Checklist** — Interactive gear preparation checklist with required/recommended/weather-specific categories
-- **Rent Before Event** — Find gear available for your next hillwalking trip
+- **Reviews & Ratings** — Rate rental experiences with punctuality, accuracy, and communication scores
+- **Credit Score System** — Dynamic credit score based on order history and reviews
+- **Hillwalking Checklist** — Interactive gear preparation: Required, Recommended, Weather-Specific
+- **Rent Before Event** — Enter a trip date, get recommended available items with match scores
 - **Admin Panel** — Manage users, review items, handle reports, create announcements
-- **Verified Community** — School email registration, in-campus pickup, admin moderation
+- **Email Verification** — Verify your email after registration
+- **Password Reset** — Forgot password flow
+- **Terms of Service & Privacy Policy** — Legal pages for public deployment
+- **Mobile Responsive** — Works on desktop, tablet, and mobile
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **Language**: TypeScript (strict)
-- **Styling**: Tailwind CSS v4 with custom forest green + cream + orange theme
-- **Database**: SQLite (local development)
-- **ORM**: Prisma 7.8
-- **Auth**: Custom cookie-based session management
-- **Validation**: Zod v4
-- **Icons**: lucide-react
-- **State**: Zustand (client-side UI state)
-- **Animation**: framer-motion
-- **Toasts**: react-hot-toast
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS v4 |
+| Database | SQLite (dev) / PostgreSQL (production) |
+| ORM | Prisma 7.8 |
+| Auth | Custom session-based (bcrypt) |
+| Validation | Zod v4 |
+| Icons | lucide-react |
+| State | Zustand |
+| Animation | framer-motion |
+| Toasts | react-hot-toast |
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 hillwalking-rental-platform/
 ├── app/                    # Next.js App Router pages
-│   ├── api/                # API routes (auth, items, orders, messages, favorites)
-│   ├── admin/              # Admin panel pages
-│   ├── dashboard/          # User dashboard
-│   ├── hillwalking/        # Hillwalking-specific pages
-│   ├── items/[id]/         # Item detail page
-│   ├── marketplace/        # Gear marketplace
-│   ├── messages/           # Chat messages
-│   ├── orders/             # Order management
-│   └── ...                 # Login, register, rules, about, etc.
-├── components/             # React components
-│   ├── layout/             # Navbar, Footer
-│   ├── ui/                 # Shared UI (Button, Badge, Avatar, etc.)
-│   ├── items/              # Item card, grid
-│   ├── orders/             # Order timeline
-│   └── hillwalking/        # Hillwalking-specific components
-├── lib/                    # Shared libraries
-│   ├── auth.ts             # Password hashing
-│   ├── constants.ts        # Enums, labels, locations
-│   ├── credit-score.ts     # Credit & match scoring
-│   ├── permissions.ts      # Role-based access control
-│   ├── prisma.ts           # Prisma client singleton
-│   ├── session.ts          # Cookie session management
-│   ├── store.ts            # Zustand UI store
-│   ├── utils.ts            # Utility functions
-│   └── validations.ts      # Zod validation schemas
-├── prisma/                 # Database schema & migrations
-│   ├── schema.prisma       # Prisma schema (all models)
-│   ├── seed.ts             # Seed data script
-│   └── migrations/         # SQL migration files
-└── public/                 # Static assets
+│   ├── api/               # API route handlers (22+ endpoints)
+│   ├── admin/             # Admin dashboard pages
+│   ├── hillwalking/       # Hillwalking-specific pages
+│   ├── marketplace/       # Item browsing & search
+│   ├── items/[id]/        # Item detail page
+│   ├── orders/            # Order list & detail
+│   ├── messages/          # Messaging interface
+│   ├── dashboard/         # User dashboard
+│   ├── my-items/          # Item management
+│   ├── favorites/         # User favorites
+│   ├── profile/[id]/      # User profile pages
+│   ├── settings/          # User settings
+│   ├── login/, register/  # Auth pages
+│   ├── forgot-password/, reset-password/, verify-email/  # Auth flows
+│   ├── terms/, privacy/   # Legal pages
+│   └── rules/, about/     # Information pages
+├── components/            # React components
+│   ├── layout/           # Navbar, Footer
+│   ├── ui/               # Button, Badge, Modal, Avatar, etc.
+│   ├── items/            # ItemCard, ItemGrid, ItemFilterSidebar
+│   ├── forms/            # ItemForm, LoginForm, RegisterForm, etc.
+│   ├── orders/           # OrderCard, OrderTimeline
+│   ├── messages/         # MessageBubble, MessageList, ChatWindow
+│   ├── admin/            # AdminSidebar, AdminStatsCard
+│   └── hillwalking/      # GearChecklistCard, HillwalkingHero
+├── lib/                   # Shared libraries
+│   ├── prisma.ts         # Database client
+│   ├── session.ts        # Cookie-based auth sessions
+│   ├── auth.ts           # Password hashing (bcrypt)
+│   ├── validations.ts    # Zod schemas
+│   ├── constants.ts      # App constants & enums
+│   ├── permissions.ts    # Authorization checks
+│   ├── credit-score.ts   # Credit score algorithm
+│   ├── utils.ts          # Utility functions
+│   └── store.ts          # Zustand UI + Auth store
+├── prisma/
+│   ├── schema.prisma     # Database schema (15+ models)
+│   ├── seed.ts           # Seed data (30 items, 10 users, 10 orders, etc.)
+│   └── migrations/       # Database migrations
+├── public/
+│   └── uploads/          # Local image uploads (dev only)
+└── .env.example          # Environment variables template
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
-
-- Node.js 18+
-- npm
-
-### Local Setup
+### Local Development (SQLite)
 
 ```bash
-# 1. Clone and enter the project
-cd hillwalking-rental-platform
-
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Copy environment variables
+# Set up environment
 cp .env.example .env
 
-# 4. Generate Prisma client
+# Generate Prisma client
 npx prisma generate
 
-# 5. Run database migrations
+# Run database migrations
 npx prisma migrate dev
 
-# 6. Seed the database with sample data
-DATABASE_URL="file:./dev.db" npx tsx prisma/seed.ts
+# Seed with sample data
+npm run seed
 
-# 7. Start the development server
+# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Test Accounts
+### Available Scripts
 
-All accounts use password: `password123`
+| Command | Description |
+|---------|------------|
+| `npm run dev` | Start dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run seed` | Seed database with sample data |
+| `npx prisma studio` | Open Prisma Studio GUI |
+| `npx prisma generate` | Generate Prisma client |
+| `npx prisma migrate dev` | Run database migrations (dev) |
+| `npx prisma migrate deploy` | Apply migrations (production) |
+
+## 🔧 Environment Variables
+
+Copy `.env.example` to `.env`:
+
+### Development (SQLite)
+```env
+DATABASE_URL="file:./dev.db"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+### Production (PostgreSQL)
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
+NEXT_PUBLIC_APP_URL="https://your-domain.com"
+
+# Email (SMTP)
+EMAIL_SERVER_HOST="smtp.example.com"
+EMAIL_SERVER_PORT="587"
+EMAIL_SERVER_USER="your@email.com"
+EMAIL_SERVER_PASSWORD="your-password"
+EMAIL_FROM="noreply@your-domain.com"
+
+# Google OAuth
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# Cloudinary (image upload)
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+CLOUDINARY_UPLOAD_PRESET="hillwalking-rental"
+```
+
+## 🔑 Test Accounts
+
+All test accounts use password: **`password123`**
 
 | Role | Email | Description |
-|---|---|---|
-| Admin | `admin@scie.test` | Platform administrator |
-| Teacher | `teacher@scie.test` | Teacher & club advisor |
-| Lender | `lender@scie.test` | Student with items to rent |
-| Borrower | `borrower@scie.test` | Student looking to rent |
+|------|-------|-------------|
+| Admin | admin@scie.test | Full admin access |
+| Teacher | teacher@scie.test | Admin + teacher profile |
+| Lender | lender@scie.test | User with items listed |
+| Borrower | borrower@scie.test | Active borrower |
+| Additional | lender1-4@scie.test, borrower1-3@scie.test | Student profiles |
 
-Additional student accounts: `ryan.zhang@scie.test`, `sophie.li@scie.test`, etc. (all use `password123`)
+## 📦 Database
 
-## Environment Variables
+### Schema (15+ models)
 
-See `.env.example` for all required variables:
+Key models: User, Item, Category, Order, MessageThread, Message, Review, Favorite, Report, Announcement, GearChecklistItem, UserGearChecklist, HillwalkingEvent, Community, VerificationToken, Session
 
-```
-DATABASE_URL="file:./dev.db"
-SCHOOL_EMAIL_DOMAINS="@scie.test,@scie.com.cn,@stu.scie.com.cn"
-NEXT_PUBLIC_APP_NAME="SCIE Hillwalking Gear Rental"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-ENABLE_REAL_PAYMENTS="false"
-```
-
-## Available Scripts
+### Migrations
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run lint         # Run ESLint
-npm run seed         # Run database seed script
-npm run db:migrate   # Run Prisma migrations
-npm run db:reset     # Reset database
-npm run db:setup     # Full setup: generate + migrate + seed
+# Development
+npx prisma migrate dev --name description
+
+# Production
+npx prisma migrate deploy
+
+# Reset (destroys data)
+npx prisma migrate reset
 ```
 
-## Core User Flows
+## 🚢 Deploying to Vercel
 
-### Borrower Flow
-1. Browse marketplace or search for gear
-2. View item details
-3. Contact lender (creates message thread)
-4. Request a rental (creates order)
-5. Track order status through the pipeline
-6. Leave a review after completion
+### Step 1: Prepare Repository
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git push origin main
+```
 
-### Lender Flow
-1. Post gear with description, pricing, and availability
-2. Receive rental requests
-3. Accept or reject requests
-4. Mark pickup/delivery status
-5. Confirm return
-6. Receive reviews and build reputation
+### Step 2: Set Up PostgreSQL
+Choose a provider:
+- **Supabase**: Create project → get connection string → add to Vercel env
+- **Neon**: Create project → get connection string → add to Vercel env
+- **Vercel Postgres**: Create from Vercel dashboard
 
-### Admin Flow
-1. Access `/admin` dashboard
-2. Review pending items for approval
-3. Manage users (verify, suspend, restore)
-4. Handle reports and disputes
-5. Create announcements
+### Step 3: Import to Vercel
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import your GitHub repository
+3. Configure build settings:
+   - Framework: Next.js
+   - Build command: `npx prisma generate && next build`
+   - Output directory: `.next`
 
-## Planned Future Work
+### Step 4: Set Environment Variables
+In Vercel dashboard → Settings → Environment Variables, add ALL variables from `.env.example`:
+- `DATABASE_URL` (required)
+- `NEXT_PUBLIC_APP_URL` (required)
+- Email/SMTP variables (for email verification)
+- Google OAuth variables (for Google Sign-In)
+- Cloudinary variables (for image uploads)
 
-- Real school email verification (SCIE domain)
-- Real payment integration (stripe or similar)
-- Mobile app (PWA)
-- Advanced search filters
-- Event-based gear recommendations
-- Custom image upload with object storage
+### Step 5: Deploy and Migrate
+```bash
+# After first deploy, run migration
+npx prisma migrate deploy
 
-## Codex Collaboration Notes
+# Create admin user (via Vercel CLI or API)
+# Or run seed (for demo/dev data only)
+npm run seed
+```
 
-This project was initialized by Claude Code and enhanced by Codex. The `codex-integration` branch contains:
-- `CODEX_AUDIT.md` — Original project audit
-- `CODEX_TASKS.md` — Task tracking board
-- `CODEX_FINAL_REPORT.md` — Final integration report
+### Step 6: Create Admin User
+After deployment, either:
+- Register normally and promote via database
+- Or use the seed script (demo only)
+- Or create a script to promote the first user to admin
 
-## License
+## 🔮 Future Integrations
 
-Internal use for SCIE students and staff.
+### Real Payments
+The platform currently displays prices but does NOT process payments. To add payments:
+1. Create a Stripe account
+2. Add Stripe keys to environment variables
+3. Implement payment intents in order creation flow
+4. Add webhook handlers for payment status
+5. Set `ENABLE_REAL_PAYMENTS=true`
+
+### Email Provider
+For email verification and password reset in production:
+1. Sign up for an email service (Resend, SendGrid, AWS SES, or Nodemailer with SMTP)
+2. Configure environment variables
+3. Verification emails and password reset emails will be sent automatically
+
+### Real-Time Messaging
+Current messaging uses page refresh/polling. For real-time:
+1. Use Pusher, Ably, or Socket.IO
+2. Or use Vercel's server-sent events
+3. Update ChatWindow component
+
+### Google OAuth
+The platform is prepared for Google Sign-In:
+1. Create OAuth credentials in Google Cloud Console
+2. Set redirect URI to `https://your-domain.com/api/auth/callback/google`
+3. Add credentials to environment variables
+
+### Image CDN
+For production image handling:
+1. Use Cloudinary (recommended) — configure env vars
+2. Or use Supabase Storage — configure env vars
+3. Or use Vercel Blob Storage
+
+## 📝 License
+
+This project is built as an open platform for outdoor gear rental. All rights reserved.
+
+## 🆘 Support
+
+For issues or questions, please file an issue on GitHub or contact the maintainer.
