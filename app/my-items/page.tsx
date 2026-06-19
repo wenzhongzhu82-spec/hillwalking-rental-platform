@@ -9,14 +9,22 @@ import { PageLoading, EmptyState } from "@/components/ui/loading";
 export default function MyItemsPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/items?status=AVAILABLE&limit=50").then(r => r.json()).then(d => {
-      fetch("/api/auth/me").then(r => r.json()).then(u => {
-        setItems((d.items || []).filter((i: any) => i.ownerId === u.user?.id));
-        setLoading(false);
-      }).catch(() => setLoading(false));
-    }).catch(() => setLoading(false));
+    async function load() {
+      try {
+        const meRes = await fetch("/api/auth/me");
+        const meData = await meRes.json();
+        if (!meData.user) { setLoading(false); return; }
+        setUserId(meData.user.id);
+        const itemsRes = await fetch(`/api/items?ownerId=${meData.user.id}&limit=50`);
+        const itemsData = await itemsRes.json();
+        setItems(itemsData.items || []);
+      } catch { /* ignore */ }
+      setLoading(false);
+    }
+    load();
   }, []);
 
   if (loading) return <PageLoading />;

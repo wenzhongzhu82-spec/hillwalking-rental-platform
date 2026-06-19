@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const search = searchParams.get("search") || "";
     const categoryId = searchParams.get("categoryId");
+    const ownerId = searchParams.get("ownerId");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const sort = searchParams.get("sort") || "newest";
@@ -24,6 +25,10 @@ export async function GET(request: NextRequest) {
         { description: { contains: search } },
         { brand: { contains: search } },
       ];
+    }
+
+    if (ownerId) {
+      where.ownerId = ownerId;
     }
 
     if (categoryId) {

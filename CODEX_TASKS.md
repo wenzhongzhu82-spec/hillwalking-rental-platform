@@ -1,27 +1,37 @@
-# Codex Task Board (Updated)
+# Codex Task Board (Round 3 Complete)
 
 ## Critical
 - [x] Enter existing hillwalking-rental-platform folder
-- [x] Audit current Claude + Codex implementation
-- [x] Create CODEX_UI_FUNCTION_AUDIT.md
-- [x] Create useAuth hook + extend Zustand auth store
-- [x] Wire up permissions.ts (cleanup + prep)
-- [x] Add suspended user checks in API routes (inline checks exist)
-- [x] Integrate credit score recalculation on review creation
-- [x] Add violation keyword check to item creation
-- [x] Verify mobile layouts on key pages
-- [x] Run npm run lint (3 warnings remain, acceptable)
-- [x] Run npm run build (passes cleanly)
-- [x] Create CODEX_INTEGRATION_FIX_REPORT.md
+- [x] Read previous Codex and Claude reports
+- [x] Create CODEX_REAL_PRODUCT_AUDIT.md
+- [x] Run seed (verified: 33 items, 13 users)
+- [x] Run build (passes cleanly)
+- [x] Audit all 28 pages for real vs fake data
+- [x] Verify admin pages use real APIs
+- [x] Verify orders use server-side prisma
+- [x] Verify messages use server-side prisma
+- [x] Verify favorites use real API
+- [x] Verify reviews use real API with credit score update
+- [x] Verify reports use real API
+- [x] Verify MyItems page functionality
+- [x] Verify item detail uses real data
+- [x] Verify hillwalking pages use real data
+- [x] Create missing Privacy page
+- [x] Create missing Contact page
+- [x] Add ownerId filter to items API
+- [x] Update MyItems page to use ownerId filter
+- [x] Create recommendation engine (lib/recommendations.ts)
+- [x] Create CODEX_REAL_PRODUCT_FIX_REPORT.md
 
 ## Important
-- [x] Ensure all pages have proper loading/empty/error states
-- [x] Standardize toast usage across pages
-- [x] Clean up duplicate component exports (badges.tsx vs StatusBadge.tsx)
-- [x] Check admin stats API completeness
-- [x] Fix profile page review display
+- [x] Check email verification in register
+- [x] Check credit score display in profile
+- [x] Check banned keyword check in item creation
+- [x] Verify footer links work
+- [x] Verify permissions exist (lib/permissions.ts)
 
 ## Polish
-- [ ] Add final manual testing checklist
-- [ ] Verify mobile hamburger menu works
-- [ ] Add safety notices to item posting form
+- [ ] Full manual flow testing
+- [ ] Mobile layout visual check
+- [ ] Admin announcements page CRUD verification
+- [ ] Wire permissions.ts into API routes (low priority - inline checks work)
