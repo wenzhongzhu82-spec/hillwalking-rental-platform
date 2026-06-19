@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "lucide-react";
+import {} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Avatar({

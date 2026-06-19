@@ -109,19 +109,28 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Update user's average rating
+    // Update user average rating and credit score
     const reviewsReceived = await prisma.review.findMany({
       where: { revieweeId },
       select: { rating: true },
     });
     const avgRating =
-      reviewsReceived.reduce((sum, r) => sum + r.rating, 0) /
-      reviewsReceived.length;
+      reviewsReceived.length > 0
+        ? reviewsReceived.reduce((sum, r) => sum + r.rating, 0) / reviewsReceived.length
+        : 0;
 
     await prisma.user.update({
       where: { id: revieweeId },
       data: { rating: Math.round(avgRating * 10) / 10 },
     });
+
+    // Recalculate credit score for reviewee
+    const { calculateCreditScore } = await import("@/lib/credit-score");
+    const userCredit = await prisma.user.findUnique({ where: { id: revieweeId }, select: { completedOrders: true } });
+    const disputes = await prisma.order.count({ where: { OR: [{ borrowerId: revieweeId }, { lenderId: revieweeId }], status: "DISPUTE_OPENED" } });
+    const cancelled = await prisma.order.count({ where: { OR: [{ borrowerId: revieweeId }, { lenderId: revieweeId }], status: "CANCELLED" } });
+    const score = calculateCreditScore(avgRating, userCredit?.completedOrders || 0, disputes, cancelled);
+    await prisma.user.update({ where: { id: revieweeId }, data: { creditScore: score } });
 
     return Response.json({ review }, { status: 201 });
   } catch (error) {

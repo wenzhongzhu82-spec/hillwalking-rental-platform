@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { checkBannedContent } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { itemSchema } from "@/lib/validations";
@@ -121,6 +122,17 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parsed.data;
+
+    // Check for banned content
+    const titleCheck = checkBannedContent(data.title);
+    const descCheck = checkBannedContent(data.description || "");
+    const tagsCheck = checkBannedContent((data.tags || []).join(" "));
+    if (titleCheck || descCheck || tagsCheck) {
+      return Response.json(
+        { error: titleCheck || descCheck || tagsCheck, banned: true },
+        { status: 400 }
+      );
+    }
 
     const item = await prisma.item.create({
       data: {

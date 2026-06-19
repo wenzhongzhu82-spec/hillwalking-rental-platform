@@ -23,7 +23,7 @@ const colors: Record<string, string> = {
   DISPUTE_OPENED: "bg-red-100 text-red-800",
 };
 
-export default function StatusBadge({ status, label, type }: { status: string; label?: string; type?: string }) {
+export default function StatusBadge({ status, label, type }: { status: string; label?: string; type?: string | undefined }) {
   const display = label || STATUS_LABELS[status] || status;
   return (
     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium", colors[status] || "bg-gray-100 text-gray-600")}>

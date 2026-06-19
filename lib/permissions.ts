@@ -4,7 +4,7 @@ import type { SessionUser } from "./session";
 export type AuthUser = SessionUser | null;
 
 /** Unauthenticated users can browse, view items, read rules/about */
-export function canViewPublic(user: AuthUser) {
+export function canViewPublic() {
   return true; // everyone can view public content
 }
 

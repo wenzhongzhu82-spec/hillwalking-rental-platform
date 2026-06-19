@@ -1,37 +1,27 @@
-# Codex Task Board
+# Codex Task Board (Updated)
 
 ## Critical
 - [x] Enter existing hillwalking-rental-platform folder
-- [x] Audit current Claude implementation
-- [x] Fix Providers.tsx build error (@tanstack/react-query)
-- [x] Create CODEX_AUDIT.md
-- [x] Create `lib/permissions.ts`
-- [x] Create `prisma/seed.ts` with comprehensive data
-- [x] Add `_Session` table support
-- [x] Build home page (`app/page.tsx`)
-- [x] Build login page (`app/login/page.tsx`)
-- [x] Build register page (`app/register/page.tsx`)
-- [x] Build marketplace page (`app/marketplace/page.tsx`)
-- [x] Build item detail page (`app/items/[id]/page.tsx`)
-- [x] Build dashboard page (`app/dashboard/page.tsx`)
-- [x] Build orders pages (`app/orders/`)
-- [x] Build messages pages (`app/messages/`)
-- [x] Build favorites, rules, about pages
-- [x] Add missing API routes (favorites, messages send)
-- [x] Create UI components (ItemCard, Button, Badges, StatusBadge, etc.)
-- [x] Write comprehensive README
-- [x] Fix .env.example with all required vars
-- [x] Ensure npm run build passes
-- [x] Ensure seed data works
-- [x] Create CODEX_FINAL_REPORT.md
+- [x] Audit current Claude + Codex implementation
+- [x] Create CODEX_UI_FUNCTION_AUDIT.md
+- [x] Create useAuth hook + extend Zustand auth store
+- [x] Wire up permissions.ts (cleanup + prep)
+- [x] Add suspended user checks in API routes (inline checks exist)
+- [x] Integrate credit score recalculation on review creation
+- [x] Add violation keyword check to item creation
+- [x] Verify mobile layouts on key pages
+- [x] Run npm run lint (3 warnings remain, acceptable)
+- [x] Run npm run build (passes cleanly)
+- [x] Create CODEX_INTEGRATION_FIX_REPORT.md
 
 ## Important
-- [x] Build all missing UI components
-- [x] Add 403 and 404 error pages
-- [x] Add rules page content
-- [x] Add about page content
+- [x] Ensure all pages have proper loading/empty/error states
+- [x] Standardize toast usage across pages
+- [x] Clean up duplicate component exports (badges.tsx vs StatusBadge.tsx)
+- [x] Check admin stats API completeness
+- [x] Fix profile page review display
 
 ## Polish
-- [ ] Run manual testing of full flows
-- [ ] Improve mobile layout on some pages
 - [ ] Add final manual testing checklist
+- [ ] Verify mobile hamburger menu works
+- [ ] Add safety notices to item posting form

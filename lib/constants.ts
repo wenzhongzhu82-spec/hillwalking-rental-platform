@@ -156,3 +156,20 @@ export const REPORT_REASON_LABELS: Record<string, string> = {
   FAKE_IMAGE: "图片不真实",
   OTHER: "其他",
 };
+
+export const BANNED_KEYWORDS = [
+  "knife", "weapon", "gun", "vape", "cigarette", "tobacco",
+  "alcohol", "beer", "wine", "medicine", "drug", "pill",
+  "exam paper", "answer", "cheat", "fake ID",
+  "adult", "porn", "explosive", "firework",
+] as const;
+
+export function checkBannedContent(text: string): string | null {
+  const lower = text.toLowerCase();
+  for (const keyword of BANNED_KEYWORDS) {
+    if (lower.includes(keyword)) {
+      return `Content may violate platform rules (detected: "${keyword}"). Prohibited items include weapons, drugs, alcohol, tobacco, adult content, cheating materials, and dangerous items.`;
+    }
+  }
+  return null;
+}

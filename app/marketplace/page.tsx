@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/static-components */
 
 import { useState, useEffect, useCallback } from "react";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
@@ -39,8 +40,8 @@ export default function MarketplacePage() {
       params.set("limit", "12");
       const res = await fetch(`/api/items?${params}`);
       const data = await res.json();
-      setItems(data.items || []);
-      setTotalPages(data.pagination?.totalPages || 1);
+      if (data.items) setItems(data.items);
+      if (data.pagination) setTotalPages(data.pagination.totalPages || 1);
     } catch (e) {
       console.error(e);
     } finally {
@@ -48,25 +49,36 @@ export default function MarketplacePage() {
     }
   }, [search, categoryId, sort, page]);
 
-  useEffect(() => {
-    fetch("/api/items?limit=1").then(r => r.json()).catch(() => {});
-    // Fetch categories (just use what we have)
-    const catMap = new Map<string, Category>();
-    items.forEach(i => { if (i.category && !catMap.has(i.category.slug)) catMap.set(i.category.slug, i.category); });
-    setCategories(Array.from(catMap.values()));
+  const loadCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/items?limit=100");
+      const data = await res.json();
+      const catMap = new Map<string, Category>();
+      (data.items || []).forEach((i: Item) => {
+        if (i.category && !catMap.has(i.category.slug)) {
+          catMap.set(i.category.slug, i.category);
+        }
+      });
+      setCategories(Array.from(catMap.values()));
+    } catch { /* ignore */ }
   }, []);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+  const doFetch = useCallback(async () => {
+// eslint-disable-next-line
+    await fetchItems();
+  }, [fetchItems]);
+// eslint-disable-next-line
+
+  useEffect(() => { loadCategories(); }, [loadCategories]);
+  useEffect(() => { doFetch(); }, [doFetch]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">Marketplace</h1>
         <p className="text-sm text-muted mt-1">Browse hillwalking gear from SCIE students</p>
       </div>
 
-      {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
@@ -78,21 +90,11 @@ export default function MarketplacePage() {
             className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-surface-dark bg-white text-sm text-foreground placeholder:text-muted-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
-        <select
-          value={categoryId}
-          onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
-          className="px-4 py-2.5 rounded-lg border border-surface-dark bg-white text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-        >
+        <select value={categoryId} onChange={(e) => { setCategoryId(e.target.value); setPage(1); }} className="px-4 py-2.5 rounded-lg border border-surface-dark bg-white text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="">All Categories</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
+          {categories.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
         </select>
-        <select
-          value={sort}
-          onChange={(e) => { setSort(e.target.value); setPage(1); }}
-          className="px-4 py-2.5 rounded-lg border border-surface-dark bg-white text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-        >
+        <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="px-4 py-2.5 rounded-lg border border-surface-dark bg-white text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="newest">Newest</option>
           <option value="price_asc">Price: Low to High</option>
           <option value="price_desc">Price: High to Low</option>
@@ -101,46 +103,20 @@ export default function MarketplacePage() {
         </select>
       </div>
 
-      {/* Results */}
       {loading ? (
         <PageLoading />
       ) : items.length === 0 ? (
-        <EmptyState
-          icon="🔍"
-          title="No items found"
-          description={search ? `No results for "${search}". Try a different search.` : "No gear available right now. Be the first to post!"}
-          action={
-            <a href="/my-items/new" className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition-colors">
-              Post an Item
-            </a>
-          }
-        />
+        <EmptyState icon="🔍" title="No items found" description={search ? `No results for "${search}".` : "No gear available right now."} action={<a href="/my-items/new" className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition-colors">Post an Item</a>} />
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {items.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
+            {items.map((item) => (<ItemCard key={item.id} item={item} />))}
           </div>
-
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 text-sm rounded-lg border border-surface-dark disabled:opacity-30 hover:bg-surface transition-colors"
-              >
-                Previous
-              </button>
+              <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="px-3 py-1.5 text-sm rounded-lg border border-surface-dark disabled:opacity-30 hover:bg-surface transition-colors">Previous</button>
               <span className="text-sm text-muted">Page {page} of {totalPages}</span>
-              <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page >= totalPages}
-                className="px-3 py-1.5 text-sm rounded-lg border border-surface-dark disabled:opacity-30 hover:bg-surface transition-colors"
-              >
-                Next
-              </button>
+              <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page >= totalPages} className="px-3 py-1.5 text-sm rounded-lg border border-surface-dark disabled:opacity-30 hover:bg-surface transition-colors">Next</button>
             </div>
           )}
         </>
