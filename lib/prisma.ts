@@ -1,7 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const DB_PATH = "/Users/evan/Desktop/hillwalking-rental-platform/dev.db";
+const DB_PATH = process.env.DATABASE_URL
+  ? process.env.DATABASE_URL.replace("file:", "")
+  : `${process.cwd()}/dev.db`;
+
 process.env.DATABASE_URL = `file:${DB_PATH}`;
 
 const globalForPrisma = globalThis as unknown as {

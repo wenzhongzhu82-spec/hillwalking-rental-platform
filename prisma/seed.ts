@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
 
-const DB_PATH = "/Users/evan/Desktop/hillwalking-rental-platform/dev.db";
+const DB_PATH = process.env.DATABASE_URL ? process.env.DATABASE_URL.replace("file:", "") : `${process.cwd()}/dev.db`;
 
 const adapter = new PrismaLibSql({ url: `file:${DB_PATH}` });
 const prisma = new PrismaClient({ adapter });
