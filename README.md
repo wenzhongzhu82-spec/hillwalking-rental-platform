@@ -196,92 +196,165 @@ npx prisma migrate deploy
 npx prisma migrate reset
 ```
 
-## 🚢 Deploying to Vercel
+## 🚢 生产环境部署
 
-### Step 1: Prepare Repository
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git push origin main
+### 📋 部署前准备清单
+
+在上线之前，你需要完成以下几个步骤，每个步骤大约需要 5-15 分钟。
+
+---
+
+### 第一步：创建 PostgreSQL 数据库
+
+Vercel 的 Serverless 函数**不能**使用本地 SQLite 文件。你需要一个云端的 PostgreSQL 数据库。
+
+**推荐方案：Supabase（免费额度足够）**
+
+1. 打开 [supabase.com/dashboard](https://supabase.com/dashboard)
+2. 注册或登录 Supabase
+3. 点击 **"New project"**
+4. 填入：
+   - **Name**: `hillwalking-rental`
+   - **Database Password**: 自己设一个密码，**务必记住**
+   - **Region**: 选 `Northeast Asia (Tokyo)` 或 `Southeast Asia (Singapore)`，离中国大陆最近
+5. 点击 **"Create new project"**，等 2-3 分钟创建完成
+6. 进入项目后，左侧菜单 → **Settings** → **Database**
+7. 找到 **Connection string** 区域，选择 **URI** 标签，**Session** 模式
+8. 复制连接字符串，长得像这样：
+   ```
+   postgresql://postgres.[项目ID]:[你的密码]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
+   ```
+9. 在末尾加上 `?sslmode=require`，变成：
+   ```
+   postgresql://postgres.[项目ID]:[你的密码]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+   ```
+
+---
+
+### 第二步：部署前代码修改
+
+⚠️ **重要**：部署前需要改一个文件。把 `prisma/schema.prisma` 第 6 行的 `provider` 从 `"sqlite"` 改成 `"postgresql"`：
+
+```prisma
+datasource db {
+  provider = "postgresql"   // ← 把 sqlite 改成 postgresql
+}
 ```
 
-### Step 2: Set Up PostgreSQL
-Choose a provider:
-- **Supabase**: Create project → get connection string → add to Vercel env
-- **Neon**: Create project → get connection string → add to Vercel env
-- **Vercel Postgres**: Create from Vercel dashboard
-
-### Step 3: Import to Vercel
-1. Go to [vercel.com/new](https://vercel.com/new)
-2. Import your GitHub repository
-3. Configure build settings:
-   - Framework: Next.js
-   - Build command: `npx prisma generate && next build`
-   - Output directory: `.next`
-
-### Step 4: Set Environment Variables
-In Vercel dashboard → Settings → Environment Variables, add ALL variables from `.env.example`:
-- `DATABASE_URL` (required)
-- `NEXT_PUBLIC_APP_URL` (required)
-- Email/SMTP variables (for email verification)
-- Google OAuth variables (for Google Sign-In)
-- Cloudinary variables (for image uploads)
-
-### Step 5: Deploy and Migrate
+然后提交这个改动：
 ```bash
-# After first deploy, run migration
-npx prisma migrate deploy
+git add prisma/schema.prisma
+git commit -m "Switch to PostgreSQL for production"
+git push
+```
 
-# Create admin user (via Vercel CLI or API)
-# Or run seed (for demo/dev data only)
+---
+
+### 第三步：在 Vercel 上部署
+
+1. 打开 [vercel.com/new](https://vercel.com/new)
+2. 用 GitHub 账号登录
+3. 找到 `hillwalking-rental-platform` 仓库，点击 **Import**
+4. 配置：
+   - **Framework Preset**: Next.js（会自动检测）
+   - **Build Command**: `npx prisma generate && next build`
+   - **Output Directory**: `.next`
+5. 展开 **Environment Variables**，添加以下变量：
+   - `DATABASE_URL` = 第一步复制的 PostgreSQL 连接字符串
+   - `NEXT_PUBLIC_APP_URL` = `https://你的项目名.vercel.app`
+   - `NEXTAUTH_SECRET` = 随机32位字符串（随便打一串乱码）
+   - `NODE_ENV` = `production`
+6. 点击 **Deploy**
+7. 等待 2-3 分钟
+8. ⚠️ **第一次部署会失败** — 因为数据库表还没创建。这是正常的。
+
+---
+
+### 第四步：运行数据库迁移
+
+部署后，本地终端执行：
+
+```bash
+cd ~/Desktop/hillwalking-rental-platform
+
+# 用 Supabase 连接字符串运行迁移
+# 把下面的 URL 替换成你第一步复制的连接字符串
+DATABASE_URL="postgresql://postgres.xxx:密码@aws-xxx.pooler.supabase.com:5432/postgres?sslmode=require" npx prisma migrate deploy
+```
+
+看到 `All migrations have been successfully applied` 就算成功。
+
+---
+
+### 第五步：创建管理员账号
+
+1. 打开 Vercel 项目 → **Deployments** → 点击最新的部署 → 点击 **Redeploy** 重新部署
+2. 这次部署应该成功
+3. 打开你的网站 `https://你的项目名.vercel.app`
+4. 点击 **Register** 注册一个新账号
+5. 登录后，打开 Supabase 项目 → 左侧 **SQL Editor**
+6. 输入并执行：
+   ```sql
+   UPDATE "User" SET role = 'ADMIN' WHERE email = '你刚注册的邮箱';
+   ```
+7. 刷新页面，你应该能看到 Admin 入口
+
+---
+
+### 第六步（可选）：配置邮件服务
+
+推荐 **Resend**（免费 100 封/天）：
+
+1. 注册 [resend.com](https://resend.com)
+2. 获取 API Key
+3. 在 Vercel 项目 → Settings → Environment Variables 添加：
+   ```
+   EMAIL_SERVER_HOST="smtp.resend.com"
+   EMAIL_SERVER_PORT="587"
+   EMAIL_SERVER_USER="resend"
+   EMAIL_SERVER_PASSWORD="re_xxxxxxxxxx"  (你的 Resend API Key)
+   EMAIL_FROM="Hillwalking Rental <noreply@你的域名.com>"
+   ```
+
+---
+
+### 第七步（可选）：配置 Cloudinary 图片存储
+
+1. 注册 [cloudinary.com](https://cloudinary.com)（免费）
+2. 获取 Cloud name、API Key、API Secret
+3. 在 Vercel 环境变量中添加
+
+如果不配，图片上传功能在生产环境不可用。
+
+---
+
+### 第八步（可选）：配置 Google 登录
+
+1. 打开 [console.cloud.google.com](https://console.cloud.google.com/apis/credentials)
+2. 创建 OAuth 2.0 客户端 ID，选择 Web application
+3. 添加重定向 URI：`https://你的域名.vercel.app/api/auth/callback/google`
+4. 在 Vercel 环境变量中添加 `GOOGLE_CLIENT_ID` 和 `GOOGLE_CLIENT_SECRET`
+
+---
+
+### 本地开发
+
+```bash
+cd ~/Desktop/hillwalking-rental-platform
+cp .env.example .env
+npm install
+npx prisma generate
+npx prisma migrate dev
 npm run seed
+npm run dev
+# 打开 http://localhost:3000
 ```
 
-### Step 6: Create Admin User
-After deployment, either:
-- Register normally and promote via database
-- Or use the seed script (demo only)
-- Or create a script to promote the first user to admin
+### 测试账号（seed 数据）
 
-## 🔮 Future Integrations
-
-### Real Payments
-The platform currently displays prices but does NOT process payments. To add payments:
-1. Create a Stripe account
-2. Add Stripe keys to environment variables
-3. Implement payment intents in order creation flow
-4. Add webhook handlers for payment status
-5. Set `ENABLE_REAL_PAYMENTS=true`
-
-### Email Provider
-For email verification and password reset in production:
-1. Sign up for an email service (Resend, SendGrid, AWS SES, or Nodemailer with SMTP)
-2. Configure environment variables
-3. Verification emails and password reset emails will be sent automatically
-
-### Real-Time Messaging
-Current messaging uses page refresh/polling. For real-time:
-1. Use Pusher, Ably, or Socket.IO
-2. Or use Vercel's server-sent events
-3. Update ChatWindow component
-
-### Google OAuth
-The platform is prepared for Google Sign-In:
-1. Create OAuth credentials in Google Cloud Console
-2. Set redirect URI to `https://your-domain.com/api/auth/callback/google`
-3. Add credentials to environment variables
-
-### Image CDN
-For production image handling:
-1. Use Cloudinary (recommended) — configure env vars
-2. Or use Supabase Storage — configure env vars
-3. Or use Vercel Blob Storage
-
-## 📝 License
-
-This project is built as an open platform for outdoor gear rental. All rights reserved.
-
-## 🆘 Support
-
-For issues or questions, please file an issue on GitHub or contact the maintainer.
+| 角色 | 邮箱 | 密码 |
+|------|------|------|
+| 管理员 | admin@scie.test | password123 |
+| 老师 | teacher@scie.test | password123 |
+| 出租者 | lender@scie.test | password123 |
+| 租借者 | borrower@scie.test | password123 |
