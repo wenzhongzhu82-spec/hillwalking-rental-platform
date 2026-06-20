@@ -45,6 +45,20 @@ model User {
   messageThreadsAsLender    MessageThread[]     @relation("lender")
   adminNotes                AdminNote[]
   community                 Community?        @relation(fields: [communityId], references: [id])
+  notifications             Notification[]
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String    // RENTAL_REQUEST, ORDER_UPDATE, NEW_MESSAGE, REVIEW_RECEIVED, REPORT_RESOLVED, ITEM_APPROVED, ITEM_REJECTED, SYSTEM
+  title     String
+  message   String
+  actionUrl String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Community {
@@ -60,6 +74,7 @@ model Community {
   updatedAt   DateTime @updatedAt
 
   members User[]
+  items   Item[]
 }
 
 model Category {
@@ -77,6 +92,7 @@ model Item {
   description              String
   categoryId               String
   ownerId                  String
+  communityId              String?
   brand                    String?
   size                     String?
   condition                String    @default("GOOD")
@@ -88,6 +104,7 @@ model Item {
   availableTo              DateTime
   status                   String    @default("PENDING_REVIEW")
   isHillwalkingRecommended Boolean   @default(false)
+  visibility               String    @default("PUBLIC") // PUBLIC, COMMUNITY_ONLY
   safetyNotes              String?
   tags                     String    @default("[]")
   images                   String    @default("[]")
@@ -101,6 +118,7 @@ model Item {
 
   category   Category       @relation(fields: [categoryId], references: [id])
   owner      User           @relation("itemOwner", fields: [ownerId], references: [id])
+  community  Community?     @relation(fields: [communityId], references: [id])
   orders     Order[]
   messages   MessageThread[]
   favorites  Favorite[]

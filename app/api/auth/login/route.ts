@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations";
 import { comparePassword } from "@/lib/auth";
 import { createSession } from "@/lib/session";
+import { loginRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +18,16 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = parsed.data;
+
+    // Rate limit by IP or email
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const rl = loginRateLimit(`${ip}:${email}`);
+    if (!rl.success) {
+      return Response.json(
+        { error: "Too many login attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {

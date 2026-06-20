@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "npx ts-node --compiler-options \"{\"module\":\"CommonJS\"}\" prisma/seed.ts",
+    "seed": "npx tsx prisma/seed.ts",
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset --force",
     "db:setup": "npx prisma generate && npx prisma migrate dev && npx ts-node --compiler-options \"{\"module\":\"CommonJS\"}\" prisma/seed.ts"

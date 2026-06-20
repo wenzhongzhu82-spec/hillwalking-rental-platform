@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
 
 interface SessionUser {
@@ -35,8 +35,9 @@ export function useSession() {
 export default function Providers({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
@@ -46,11 +47,14 @@ export default function Providers({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchUser();
   }, []);
+
+  // useRef guard prevents double-fetch in dev mode (StrictMode)
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    fetchUser();
+  }, [fetchUser]);
 
   return (
     <SessionContext.Provider value={{ user, loading, refresh: fetchUser }}>

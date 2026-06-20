@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Mountain,
   LogOut,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Avatar from "@/components/ui/Avatar";
@@ -44,6 +45,11 @@ const adminLinks = [
     href: "/admin/reports",
     label: "Reports",
     icon: Flag,
+  },
+  {
+    href: "/admin/communities",
+    label: "Communities",
+    icon: Building2,
   },
   {
     href: "/admin/announcements",

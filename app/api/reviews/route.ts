@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { reviewSchema } from "@/lib/validations";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,6 +132,19 @@ export async function POST(request: NextRequest) {
     const cancelled = await prisma.order.count({ where: { OR: [{ borrowerId: revieweeId }, { lenderId: revieweeId }], status: "CANCELLED" } });
     const score = calculateCreditScore(avgRating, userCredit?.completedOrders || 0, disputes, cancelled);
     await prisma.user.update({ where: { id: revieweeId }, data: { creditScore: score } });
+
+    // Create notification for the reviewee
+    try {
+      await createNotification({
+        userId: revieweeId,
+        type: "REVIEW_RECEIVED",
+        title: "New review received",
+        message: `${review.reviewer.name} left you a ${data.rating}-star review`,
+        actionUrl: `/profile/${revieweeId}`,
+      });
+    } catch (notifErr) {
+      console.error("Failed to create notification:", notifErr);
+    }
 
     return Response.json({ review }, { status: 201 });
   } catch (error) {

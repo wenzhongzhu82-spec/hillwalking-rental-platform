@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const categoryId = searchParams.get("categoryId");
     const ownerId = searchParams.get("ownerId");
+    const communityId = searchParams.get("communityId");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const sort = searchParams.get("sort") || "newest";
@@ -33,6 +34,10 @@ export async function GET(request: NextRequest) {
 
     if (categoryId) {
       where.categoryId = categoryId;
+    }
+
+    if (communityId) {
+      where.communityId = communityId;
     }
 
     if (minPrice || maxPrice) {

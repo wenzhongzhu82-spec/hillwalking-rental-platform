@@ -2,6 +2,8 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { messageSchema } from "@/lib/validations";
+import { messageRateLimit } from "@/lib/rate-limit";
+import { createNotification } from "@/lib/notifications";
 
 export async function GET(
   request: NextRequest,
@@ -51,6 +53,16 @@ export async function POST(
     if (!session) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Rate limit message sending
+    const rl = messageRateLimit(session.id);
+    if (!rl.success) {
+      return Response.json(
+        { error: "You are sending messages too fast. Please slow down." },
+        { status: 429 }
+      );
+    }
+
     const { threadId } = await params;
     const thread = await prisma.messageThread.findUnique({
       where: { id: threadId },
@@ -82,6 +94,22 @@ export async function POST(
       where: { id: threadId },
       data: { lastMessageAt: new Date() },
     });
+
+    // Create notification for the OTHER participant
+    try {
+      const otherUserId =
+        thread.borrowerId === session.id ? thread.lenderId : thread.borrowerId;
+      await createNotification({
+        userId: otherUserId,
+        type: "NEW_MESSAGE",
+        title: "New message",
+        message: `${message.sender.name} sent you a new message`,
+        actionUrl: `/messages/${threadId}`,
+      });
+    } catch (notifErr) {
+      console.error("Failed to create notification:", notifErr);
+    }
+
     return Response.json({ message }, { status: 201 });
   } catch (e) {
     console.error(e);

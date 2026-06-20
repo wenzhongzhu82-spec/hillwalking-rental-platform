@@ -12,14 +12,16 @@ Originally designed for SCIE (Shenzhen College of International Education) stude
 - **Item Listings** — Post gear with descriptions, photos, pricing, safety notes, and availability dates
 - **Rental Orders** — Full lifecycle: request → accept → pickup → use → return → review
 - **Messaging** — In-app chat between borrowers and lenders per item
+- **Notifications** — Real-time notification system with bell icon badge for order updates, messages, reviews
 - **Favorites** — Save items for later
 - **Reviews & Ratings** — Rate rental experiences with punctuality, accuracy, and communication scores
 - **Credit Score System** — Dynamic credit score based on order history and reviews
 - **Hillwalking Checklist** — Interactive gear preparation: Required, Recommended, Weather-Specific
 - **Rent Before Event** — Enter a trip date, get recommended available items with match scores
-- **Admin Panel** — Manage users, review items, handle reports, create announcements
+- **Admin Panel** — Manage users, review items, handle reports, manage communities, create announcements
 - **Email Verification** — Verify your email after registration
 - **Password Reset** — Forgot password flow
+- **Rate Limiting** — Login, register, message, and report rate limits
 - **Terms of Service & Privacy Policy** — Legal pages for public deployment
 - **Mobile Responsive** — Works on desktop, tablet, and mobile
 
@@ -44,13 +46,15 @@ Originally designed for SCIE (Shenzhen College of International Education) stude
 ```
 hillwalking-rental-platform/
 ├── app/                    # Next.js App Router pages
-│   ├── api/               # API route handlers (22+ endpoints)
+│   ├── api/               # API route handlers (28+ endpoints)
 │   ├── admin/             # Admin dashboard pages
+│   ├── communities/       # Community list, detail, and creation
 │   ├── hillwalking/       # Hillwalking-specific pages
 │   ├── marketplace/       # Item browsing & search
 │   ├── items/[id]/        # Item detail page
 │   ├── orders/            # Order list & detail
 │   ├── messages/          # Messaging interface
+│   ├── notifications/     # Notification center
 │   ├── dashboard/         # User dashboard
 │   ├── my-items/          # Item management
 │   ├── favorites/         # User favorites

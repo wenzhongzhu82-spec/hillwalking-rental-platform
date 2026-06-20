@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { createNotification } from "@/lib/notifications";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,6 +15,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
     const search = searchParams.get("search") || "";
     const status = searchParams.get("status");
+    const communityId = searchParams.get("communityId");
 
     const where: Record<string, unknown> = {};
 
@@ -26,6 +28,10 @@ export async function GET(request: NextRequest) {
 
     if (status) {
       where.status = status;
+    }
+
+    if (communityId) {
+      where.communityId = communityId;
     }
 
     const [items, total] = await Promise.all([
@@ -170,6 +176,29 @@ export async function PATCH(request: NextRequest) {
         },
       },
     });
+
+    // Create notification for the item owner
+    try {
+      if (action === "APPROVE") {
+        await createNotification({
+          userId: updated.ownerId,
+          type: "ITEM_APPROVED",
+          title: "Item approved",
+          message: `Your item "${updated.title}" has been approved and is now available for rent.`,
+          actionUrl: `/items/${itemId}`,
+        });
+      } else if (action === "REJECT") {
+        await createNotification({
+          userId: updated.ownerId,
+          type: "ITEM_REJECTED",
+          title: "Item rejected",
+          message: `Your item "${updated.title}" was not approved. Reason: ${hiddenReason || adminNote || "Not specified"}`,
+          actionUrl: `/items/${itemId}`,
+        });
+      }
+    } catch (notifErr) {
+      console.error("Failed to create notification:", notifErr);
+    }
 
     return Response.json({ item: updated });
   } catch (error) {

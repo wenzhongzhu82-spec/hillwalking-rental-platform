@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { reportSchema } from "@/lib/validations";
+import { reportRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,15 @@ export async function POST(request: NextRequest) {
       return Response.json(
         { error: "Your account must be verified to submit reports" },
         { status: 403 }
+      );
+    }
+
+    // Rate limit report submissions
+    const rl = reportRateLimit(session.id);
+    if (!rl.success) {
+      return Response.json(
+        { error: "Too many reports submitted. Please try again later." },
+        { status: 429 }
       );
     }
 

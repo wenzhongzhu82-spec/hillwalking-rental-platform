@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { createNotification } from "@/lib/notifications";
 import { orderSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     const item = await prisma.item.findUnique({
       where: { id: itemId },
-      include: { owner: { select: { id: true } } },
+      select: { id: true, title: true, dailyPrice: true, deposit: true, status: true, ownerId: true, owner: { select: { id: true, name: true } } },
     });
 
     if (!item) {
@@ -101,6 +102,15 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Create notification for the lender
+    await createNotification({
+      userId: item.ownerId,
+      type: "RENTAL_REQUEST",
+      title: "New rental request",
+      message: `${session.name} requested to rent your "${item.title}"`,
+      actionUrl: `/orders/${order.id}`,
+    }).catch((err) => console.error("Failed to create notification:", err));
 
     return Response.json({ order }, { status: 201 });
   } catch (error) {

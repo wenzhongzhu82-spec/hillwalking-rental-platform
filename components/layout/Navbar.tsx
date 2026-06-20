@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mountain, Menu, X, ChevronDown, User, LayoutDashboard, Package, ClipboardList, Heart, LogOut, MessageSquare, ShieldCheck } from "lucide-react";
+import { Mountain, Menu, X, ChevronDown, User, LayoutDashboard, Package, ClipboardList, Heart, LogOut, MessageSquare, ShieldCheck, Bell, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/store";
 
@@ -22,6 +22,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,6 +36,18 @@ export default function Navbar() {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    fetch("/api/notifications?unreadCount=true")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.count === "number") {
+          setUnreadCount(data.count);
+        }
+      })
+      .catch(() => {});
+  }, [isLoggedIn]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -57,6 +70,7 @@ export default function Navbar() {
     { href: "/marketplace", label: "Marketplace" },
     { href: "/hillwalking", label: "Hillwalking Checklist" },
     { href: "/hillwalking/rent-before-event", label: "Rent Before Event" },
+    { href: "/communities", label: "Communities", icon: Users },
     { href: "/messages", label: "Messages", icon: MessageSquare },
   ];
 
@@ -91,6 +105,18 @@ export default function Navbar() {
           {/* Right side */}
           <div className="hidden md:flex items-center gap-3">
             {isLoggedIn && user ? (
+              <>
+                <Link
+                  href="/notifications"
+                  className="relative p-2 rounded-lg hover:bg-surface transition-colors"
+                >
+                  <Bell className="w-5 h-5 text-muted-dark hover:text-primary transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-primary rounded-full min-w-[1.125rem]">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -160,6 +186,7 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+              </>
             ) : (
               <div className="flex items-center gap-2">
                 <Link
@@ -228,6 +255,14 @@ export default function Navbar() {
                 </Link>
                 <Link href="/favorites" className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted-dark hover:bg-surface rounded-lg" onClick={closeMobileMenu}>
                   <Heart className="w-4 h-4" /> Favorites
+                </Link>
+                <Link href="/notifications" className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted-dark hover:bg-surface rounded-lg" onClick={closeMobileMenu}>
+                  <Bell className="w-4 h-4" /> Notifications
+                  {unreadCount > 0 && (
+                    <span className="ml-auto inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold text-white bg-primary rounded-full min-w-[1.125rem]">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
                 <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-error hover:bg-error-light rounded-lg">
                   <LogOut className="w-4 h-4" /> Logout

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const record = consumeResetToken(token);
+    const record = await consumeResetToken(token);
 
     if (!record) {
       return Response.json(

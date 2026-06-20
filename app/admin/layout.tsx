@@ -50,6 +50,7 @@ export default async function AdminLayout({
               { href: "/admin/items", label: "Items" },
               { href: "/admin/users", label: "Users" },
               { href: "/admin/reports", label: "Reports" },
+              { href: "/admin/communities", label: "Communities" },
               { href: "/admin/announcements", label: "Announcements" },
               { href: "/admin/settings", label: "Settings" },
             ].map((link) => (

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Token is required" }, { status: 400 });
     }
 
-    const record = consumeVerificationToken(token);
+    const record = await consumeVerificationToken(token);
 
     if (!record) {
       return Response.json(

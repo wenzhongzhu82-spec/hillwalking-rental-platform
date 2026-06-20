@@ -2,31 +2,88 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
 
-const DB_PATH = process.env.DATABASE_URL ? process.env.DATABASE_URL.replace("file:", "") : `${process.cwd()}/dev.db`;
+// Detect database type and create appropriate client
+const DB_URL = process.env.DATABASE_URL || "file:./dev.db";
+let prisma: PrismaClient;
 
-const adapter = new PrismaLibSql({ url: `file:${DB_PATH}` });
-const prisma = new PrismaClient({ adapter });
+if (DB_URL.startsWith("postgresql://") || DB_URL.startsWith("postgres://")) {
+  // PostgreSQL — standard Prisma client (no adapter needed)
+  prisma = new PrismaClient();
+} else {
+  // SQLite / libsql — needs the libsql adapter
+  const dbPath = DB_URL.replace("file:", "");
+  const adapter = new PrismaLibSql({ url: `file:${dbPath}` });
+  prisma = new PrismaClient({ adapter });
+}
 
 async function main() {
   console.log("🌱 Seeding database...");
 
   // Clean existing data
-  await prisma.adminNote.deleteMany();
-  await prisma.userGearChecklist.deleteMany();
-  await prisma.review.deleteMany();
-  await prisma.message.deleteMany();
-  await prisma.messageThread.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.favorite.deleteMany();
-  await prisma.report.deleteMany();
-  await prisma.announcement.deleteMany();
-  await prisma.item.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.gearChecklistItem.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.user.deleteMany();
+  const deleteOrder = [
+    "AdminNote", "Notification", "UserGearChecklist", "Review",
+    "Message", "MessageThread", "Order", "Favorite", "Report",
+    "Announcement", "VerificationToken",
+  ];
+  for (const model of deleteOrder) {
+    try {
+      await (prisma as any)[model].deleteMany();
+    } catch { /* table might not exist yet */ }
+  }
+  try { await prisma.item.deleteMany(); } catch {}
+  try { await prisma.category.deleteMany(); } catch {}
+  try { await prisma.gearChecklistItem.deleteMany(); } catch {}
+  try { await prisma.session.deleteMany(); } catch {}
+  try { await prisma.community.deleteMany(); } catch {}
+  try { await prisma.user.deleteMany(); } catch {}
 
   const hash = await bcrypt.hash("password123", 12);
+
+  // ========== COMMUNITIES ==========
+  const publicCommunity = await prisma.community.create({
+    data: {
+      name: "Public Marketplace",
+      slug: "public-marketplace",
+      type: "OTHER",
+      description: "The open marketplace for everyone. Browse and share gear across all communities.",
+      location: "Global",
+      verified: true,
+    },
+  });
+
+  const scieCommunity = await prisma.community.create({
+    data: {
+      name: "SCIE Hillwalking",
+      slug: "scie-hillwalking",
+      type: "SCHOOL",
+      description: "SCIE Hillwalking Club — the original gear sharing community for Shenzhen College of International Education students.",
+      location: "Shenzhen, Antuoshan",
+      verified: true,
+    },
+  });
+
+  const outdoorClub = await prisma.community.create({
+    data: {
+      name: "Outdoor Club Example",
+      slug: "outdoor-club-example",
+      type: "CLUB",
+      description: "An example outdoor adventure club. Join to share gear with fellow outdoor enthusiasts!",
+      location: "Shenzhen",
+      verified: true,
+    },
+  });
+
+  const cityGear = await prisma.community.create({
+    data: {
+      name: "City Gear Sharing",
+      slug: "city-gear-sharing",
+      type: "CITY",
+      description: "A city-wide gear sharing community. Open to all residents.",
+      location: "Shenzhen",
+      verified: false,
+    },
+  });
+  console.log("✅ Created 4 communities");
 
   // ========== USERS ==========
   const admin = await prisma.user.create({
@@ -35,6 +92,7 @@ async function main() {
       role: "ADMIN", verified: true, grade: "Teacher", house: "None",
       rating: 5.0, creditScore: 100, completedOrders: 15,
       bio: "Platform administrator and Hillwalking club supervisor.",
+      communityId: scieCommunity.id,
     },
   });
 
@@ -44,6 +102,7 @@ async function main() {
       role: "ADMIN", verified: true, grade: "Teacher", house: "None",
       rating: 4.8, creditScore: 98, completedOrders: 8,
       bio: "Geography teacher & Hillwalking club advisor.",
+      communityId: scieCommunity.id,
     },
   });
 
@@ -53,6 +112,7 @@ async function main() {
       role: "USER", verified: true, grade: "A2", house: "Fire",
       rating: 4.7, creditScore: 95, completedOrders: 12,
       bio: "A2 student. Love hiking and sharing gear!",
+      communityId: scieCommunity.id,
     },
   });
 
@@ -62,21 +122,23 @@ async function main() {
       role: "USER", verified: true, grade: "G2", house: "Water",
       rating: 4.3, creditScore: 88, completedOrders: 6,
       bio: "G2 student, new to hillwalking.",
+      communityId: scieCommunity.id,
     },
   });
 
   const users = [admin, teacher, lender, borrower];
 
   for (const s of [
-    ["Ryan Zhang", "G1", "Wood"], ["Sophie Li", "G2", "Fire"],
-    ["James Wu", "A1", "Metal"], ["Grace Tan", "A1", "Water"],
-    ["Leo Huang", "A2", "Wood"], ["Mia Zhao", "G1", "Metal"],
+    ["Ryan Zhang", "G1", "Wood", scieCommunity.id], ["Sophie Li", "G2", "Fire", scieCommunity.id],
+    ["James Wu", "A1", "Metal", publicCommunity.id], ["Grace Tan", "A1", "Water", publicCommunity.id],
+    ["Leo Huang", "A2", "Wood", publicCommunity.id], ["Mia Zhao", "G1", "Metal", scieCommunity.id],
   ]) {
     const u = await prisma.user.create({
       data: {
         name: s[0], email: `${s[0].toLowerCase().replace(" ", ".")}@scie.test`,
         passwordHash: hash, role: "USER", verified: true,
-        grade: s[1], house: s[2], rating: 3 + Math.random() * 2,
+        grade: s[1], house: s[2], communityId: s[3] as string,
+        rating: 3 + Math.random() * 2,
         creditScore: 70 + Math.floor(Math.random() * 30),
         completedOrders: Math.floor(Math.random() * 10),
       },
@@ -86,7 +148,7 @@ async function main() {
   console.log(`✅ Created ${users.length} users`);
 
   // ========== CATEGORIES ==========
-  const catData = [
+  const catData: [string, string][] = [
     ["Backpacks", "backpacks"], ["Waterproof Gear", "waterproof-gear"],
     ["Trekking Poles", "trekking-poles"], ["Camping Gear", "camping-gear"],
     ["Lighting", "lighting"], ["Warm Clothing", "warm-clothing"],
@@ -137,12 +199,14 @@ async function main() {
     { t: "Camping Stove Set", c: "camping-gear", o: 1, b: "MSR", cd: "LIGHTLY_USED", p: 10, dp: 100, d: "Compact camping stove with pot, pan, and spork.", hw: false, s: "Use in well-ventilated area only. Gas not included.", tags: ["durable","deposit required"], l: "Dormitory Area" },
   ];
 
-  const createdItems = [];
+  const createdItems: any[] = [];
   for (const it of items) {
+    const ownerUser = users[it.o];
     const item = await prisma.item.create({
       data: {
         title: it.t, description: it.d, categoryId: catMap[it.c],
-        ownerId: users[it.o].id, brand: it.b || null, size: it.sz || null,
+        ownerId: (ownerUser as any).id, communityId: (ownerUser as any).communityId || scieCommunity.id,
+        brand: it.b || null, size: it.sz || null,
         condition: it.cd || "LIGHTLY_USED", dailyPrice: it.p, deposit: it.dp,
         pickupLocation: it.l, isHillwalkingRecommended: it.hw ?? false,
         safetyNotes: it.s || null, tags: JSON.stringify(it.tags || []),
@@ -165,7 +229,7 @@ async function main() {
     const ed = i < 2 ? pd(3) : fd(i * 2 + 3);
     await prisma.order.create({
       data: {
-        itemId: item.id, borrowerId: borrowerUser.id, lenderId: item.ownerId,
+        itemId: item.id, borrowerId: (borrowerUser as any).id, lenderId: item.ownerId,
         startDate: sd, endDate: ed,
         totalPrice: item.dailyPrice * Math.max(1, Math.ceil((ed.getTime() - sd.getTime()) / 86400000)),
         deposit: item.deposit,
@@ -180,7 +244,7 @@ async function main() {
     const borrowerUser = users[4 + ((i + 2) % 6)];
     await prisma.order.create({
       data: {
-        itemId: item.id, borrowerId: borrowerUser.id, lenderId: item.ownerId,
+        itemId: item.id, borrowerId: (borrowerUser as any).id, lenderId: item.ownerId,
         startDate: fd(i + 5), endDate: fd(i + 8),
         totalPrice: item.dailyPrice * 3, deposit: item.deposit,
         status: "REQUEST_PENDING",
@@ -232,11 +296,11 @@ async function main() {
   // ========== FAVORITES ==========
   for (let i = 4; i < 10; i++) {
     for (const it of createdItems.slice(i, i + 3)) {
-      await prisma.favorite.upsert({
-        where: { userId_itemId: { userId: users[i].id, itemId: it.id } },
-        create: { userId: users[i].id, itemId: it.id },
-        update: {},
-      }).catch(() => {});
+      try {
+        await prisma.favorite.create({
+          data: { userId: (users[i] as any).id, itemId: it.id },
+        });
+      } catch { /* duplicate — ignore */ }
     }
   }
   console.log("✅ Created favorites");
@@ -261,26 +325,31 @@ async function main() {
     { n: "Anti-Slip Shoe Covers", c: "WEATHER_SPECIFIC", i: 3, d: "Extra grip for wet or muddy trails.", w: "rain" },
     { n: "Waterproof Dry Bag", c: "WEATHER_SPECIFIC", i: 4, d: "Keep electronics and clothes dry.", w: "rain" },
   ];
-  const createdGear = [];
   for (const g of gearItems) {
-    createdGear.push(await prisma.gearChecklistItem.create({ data: { name: g.n, category: g.c, importance: g.i, description: g.d, recommendedForWeather: g.w } }));
+    await prisma.gearChecklistItem.create({
+      data: { name: g.n, category: g.c, importance: g.i, description: g.d, recommendedForWeather: g.w },
+    });
   }
-  console.log(`✅ Created ${createdGear.length} gear checklist items`);
+  console.log(`✅ Created ${gearItems.length} gear checklist items`);
 
   // ========== ANNOUNCEMENTS ==========
-  await prisma.announcement.createMany({
-    data: [
-      { title: "Hillwalking Season is Here!", content: "Prepare your gear for the best hillwalking season in Shenzhen! Use the Gear Checklist to check what you need, and borrow from fellow SCIE students.", type: "HILLWALKING", createdById: admin.id },
-      { title: "Safety Reminder: Check Gear Before Use", content: "All borrowers should inspect gear before taking it on a hillwalking trip. Check for damage and test electronics. Your safety comes first!", type: "SAFETY", createdById: admin.id },
-      { title: "Platform Rules Updated", content: "Key changes: admin review required for new items, reports processed within 24h, free items highlighted on homepage. Read full rules at /rules.", type: "RULES", createdById: admin.id },
-      { title: "Lost & Found: Water Bottle", content: "A blue Nalgene water bottle found near the sports field. Contact admin office if yours.", type: "LOST_FOUND", createdById: admin.id },
-    ],
+  await prisma.announcement.create({
+    data: { title: "Hillwalking Season is Here!", content: "Prepare your gear for the best hillwalking season! Use the Gear Checklist to check what you need, and borrow from people in your community.", type: "HILLWALKING", createdById: (admin as any).id },
+  });
+  await prisma.announcement.create({
+    data: { title: "Safety Reminder: Check Gear Before Use", content: "All borrowers should inspect gear before taking it on a hillwalking trip. Check for damage and test electronics. Your safety comes first!", type: "SAFETY", createdById: (admin as any).id },
+  });
+  await prisma.announcement.create({
+    data: { title: "Platform Rules Updated", content: "Key changes: admin review required for new items, reports processed within 24h, free items highlighted on homepage. Read full rules at /rules.", type: "RULES", createdById: (admin as any).id },
+  });
+  await prisma.announcement.create({
+    data: { title: "Lost & Found: Water Bottle", content: "A blue Nalgene water bottle found near the sports field. Contact admin if yours.", type: "LOST_FOUND", createdById: (admin as any).id },
   });
   console.log("✅ Created 4 announcements");
 
   // ========== HILLWALKING EVENT ==========
   await prisma.hillwalkingEvent.create({
-    data: { name: "SCIE Autumn Hillwalking Day", description: "Annual SCIE autumn hillwalking! Wutong Mountain trail.", eventDate: fd(14), createdById: admin.id },
+    data: { name: "Hillwalking Day", description: "Annual community hillwalking event!", eventDate: fd(14), createdById: (admin as any).id },
   });
   console.log("✅ Created 1 hillwalking event");
 

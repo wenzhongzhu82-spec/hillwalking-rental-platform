@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { createNotification } from "@/lib/notifications";
 
 export async function PATCH(
   request: NextRequest,
@@ -58,6 +59,20 @@ export async function PATCH(
         },
       },
     });
+
+    // Create notification for the reporter
+    try {
+      const resolutionText = status === "RESOLVED" ? "resolved" : "dismissed";
+      await createNotification({
+        userId: updated.reporterId,
+        type: "REPORT_RESOLVED",
+        title: `Report ${resolutionText}`,
+        message: `Your report has been ${resolutionText} by an admin.`,
+        actionUrl: `/dashboard`,
+      });
+    } catch (notifErr) {
+      console.error("Failed to create notification:", notifErr);
+    }
 
     return Response.json({ report: updated });
   } catch (error) {

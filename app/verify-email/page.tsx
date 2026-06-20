@@ -33,7 +33,7 @@ async function VerifyEmailContent({ token }: { token: string | undefined }) {
   }
 
   // Try to consume the verification token
-  const record = consumeVerificationToken(token);
+  const record = await consumeVerificationToken(token);
 
   if (!record) {
     return (

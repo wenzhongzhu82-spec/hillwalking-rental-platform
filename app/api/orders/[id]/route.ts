@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { createNotification } from "@/lib/notifications";
 
 export async function GET(
   request: NextRequest,
@@ -248,6 +249,48 @@ export async function PATCH(
         },
       },
     });
+
+    // Create notifications for the OTHER party based on status change
+    try {
+      const itemTitle = updated.item.title;
+      if (status === "ACCEPTED") {
+        await createNotification({
+          userId: updated.borrowerId,
+          type: "ORDER_UPDATE",
+          title: "Rental request accepted",
+          message: `${updated.lender.name} accepted your rental request for "${itemTitle}"`,
+          actionUrl: `/orders/${id}`,
+        });
+      } else if (status === "REJECTED") {
+        await createNotification({
+          userId: updated.borrowerId,
+          type: "ORDER_UPDATE",
+          title: "Rental request rejected",
+          message: `${updated.lender.name} rejected your rental request for "${itemTitle}"`,
+          actionUrl: `/orders/${id}`,
+        });
+      } else if (status === "COMPLETED") {
+        await createNotification({
+          userId: updated.borrowerId,
+          type: "ORDER_UPDATE",
+          title: "Order completed",
+          message: `Your rental for "${itemTitle}" has been completed. You can now leave a review.`,
+          actionUrl: `/orders/${id}`,
+        });
+      } else if (status === "CANCELLED") {
+        const notifyUserId = session.id === updated.borrowerId ? updated.lenderId : updated.borrowerId;
+        const cancellerName = session.id === updated.borrowerId ? updated.borrower.name : updated.lender.name;
+        await createNotification({
+          userId: notifyUserId,
+          type: "ORDER_UPDATE",
+          title: "Order cancelled",
+          message: `${cancellerName} cancelled the order for "${itemTitle}"`,
+          actionUrl: `/orders/${id}`,
+        });
+      }
+    } catch (notifErr) {
+      console.error("Failed to create notification:", notifErr);
+    }
 
     return Response.json({ order: updated });
   } catch (error) {
